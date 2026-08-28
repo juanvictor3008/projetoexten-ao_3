@@ -134,7 +134,7 @@ lib/
 
 ## Próximos passos (melhorias planejadas)
 
-- Plano semanal **personalizado** a partir do histórico do usuário.
+- Plano semanal **personalizado** a partir do histório do usuário.
 - Auto-atualização das telas Início/Evolução ao registrar algo.
 - Tela de **histórico** com opção de excluir registros.
 - **Modo cuidador** para acompanhamento remoto.
