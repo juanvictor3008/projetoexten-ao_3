@@ -3,23 +3,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/atividade.dart';
 import '../models/alimentacao.dart';
 
+// Camada de persistência local. Usa shared_preferences, que funciona tanto
+// na web (localStorage) quanto no Android (preferências do app), sem servidor.
+// Os registros são salvos como JSON numa única chave cada (lista de objetos).
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
-  static const _ativKey = 'atividades';
-  static const _refKey = 'alimentacao';
+  static const _ativKey = 'atividades'; // chave da lista de atividades
+  static const _refKey = 'alimentacao'; // chave da lista de refeições
   SharedPreferences? _prefs;
 
   DatabaseHelper._init();
 
+  // Retorna a instância de SharedPreferences, criando-a uma vez só.
   Future<SharedPreferences> get prefs async {
     _prefs ??= await SharedPreferences.getInstance();
     return _prefs!;
   }
 
+  // Salva uma atividade: lê a lista, adiciona o item e reescreve o JSON.
   Future<int> inserirAtividade(Atividade a) async {
     final p = await prefs;
     final lista = await listarAtividades();
-    final id = DateTime.now().millisecondsSinceEpoch;
+    final id = DateTime.now().millisecondsSinceEpoch; // id simples baseado no relógio
     final nova = Atividade(
       id: id,
       data: a.data,
@@ -33,6 +38,7 @@ class DatabaseHelper {
     return id;
   }
 
+  // Lê e reconstrói a lista de atividades (mais recentes primeiro).
   Future<List<Atividade>> listarAtividades() async {
     final p = await prefs;
     final raw = p.getString(_ativKey);
@@ -43,6 +49,7 @@ class DatabaseHelper {
     return ativs;
   }
 
+  // Salva uma refeição: lê a lista, adiciona o item e reescreve o JSON.
   Future<int> inserirRefeicao(Refeicao r) async {
     final p = await prefs;
     final lista = await listarRefeicoes();
@@ -59,6 +66,7 @@ class DatabaseHelper {
     return id;
   }
 
+  // Lê e reconstrói a lista de refeições (mais recentes primeiro).
   Future<List<Refeicao>> listarRefeicoes() async {
     final p = await prefs;
     final raw = p.getString(_refKey);
@@ -69,6 +77,7 @@ class DatabaseHelper {
     return refs;
   }
 
+  // Libera a instância em memória (não apaga os dados salvos).
   Future<void> fechar() async {
     _prefs = null;
   }

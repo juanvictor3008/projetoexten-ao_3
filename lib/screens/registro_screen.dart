@@ -3,6 +3,7 @@ import '../database/database_helper.dart';
 import '../models/atividade.dart';
 import '../models/alimentacao.dart';
 
+// Tela "Registrar": permite cadastrar atividades físicas ou alimentação.
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({super.key});
   @override
@@ -10,7 +11,7 @@ class RegistroScreen extends StatefulWidget {
 }
 
 class _RegistroScreenState extends State<RegistroScreen> {
-  bool _modoAtividade = true;
+  bool _modoAtividade = true; // true = form de atividade; false = form de refeição
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
+          // Botões de alternância entre os dois tipos de registro.
           ToggleButtons(
             isSelected: [_modoAtividade, !_modoAtividade],
             onPressed: (i) => setState(() => _modoAtividade = i == 0),
@@ -31,6 +33,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
             ],
           ),
           const SizedBox(height: 20),
+          // Exibe o formulário correspondente à opção escolhida.
           _modoAtividade ? const _FormAtividade() : const _FormRefeicao(),
         ],
       ),
@@ -38,6 +41,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   }
 }
 
+// Formulário de registro de atividade física.
 class _FormAtividade extends StatefulWidget {
   const _FormAtividade();
   @override
@@ -45,11 +49,13 @@ class _FormAtividade extends StatefulWidget {
 }
 
 class _FormAtividadeState extends State<_FormAtividade> {
+  // Valores atuais dos campos do formulário.
   TipoAtividade _tipo = TipoAtividade.aerobico;
   Intensidade _intensidade = Intensidade.leve;
   int _duracao = 20;
   int _sentimento = 3;
 
+  // Cria o objeto Atividade e salva na persistência local.
   Future<void> _salvar() async {
     final atv = Atividade(
       data: DateTime.now(),
@@ -59,6 +65,7 @@ class _FormAtividadeState extends State<_FormAtividade> {
       sentimento: _sentimento,
     );
     await DatabaseHelper.instance.inserirAtividade(atv);
+    // Confirma para o usuário, se a tela ainda estiver ativa.
     if (mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Atividade registrada!')));
@@ -69,6 +76,7 @@ class _FormAtividadeState extends State<_FormAtividade> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Seleção do tipo de atividade.
         DropdownButtonFormField<TipoAtividade>(
           value: _tipo,
           decoration: const InputDecoration(
@@ -80,6 +88,7 @@ class _FormAtividadeState extends State<_FormAtividade> {
           onChanged: (v) => setState(() => _tipo = v!),
         ),
         const SizedBox(height: 16),
+        // Seleção da intensidade.
         DropdownButtonFormField<Intensidade>(
           value: _intensidade,
           decoration: const InputDecoration(
@@ -91,6 +100,7 @@ class _FormAtividadeState extends State<_FormAtividade> {
           onChanged: (v) => setState(() => _intensidade = v!),
         ),
         const SizedBox(height: 16),
+        // Duração em minutos (entrada numérica).
         TextFormField(
           initialValue: '20',
           decoration: const InputDecoration(
@@ -100,6 +110,7 @@ class _FormAtividadeState extends State<_FormAtividade> {
           onChanged: (v) => _duracao = int.tryParse(v) ?? 20,
         ),
         const SizedBox(height: 16),
+        // Sentimento pós-atividade (1 a 5) via slider.
         Text('Como você se sentiu? $_sentimento/5',
             style: const TextStyle(fontSize: 20)),
         Slider(
@@ -111,12 +122,14 @@ class _FormAtividadeState extends State<_FormAtividade> {
           onChanged: (v) => setState(() => _sentimento = v.toInt()),
         ),
         const SizedBox(height: 20),
+        // Botão que dispara o salvamento.
         ElevatedButton(onPressed: _salvar, child: const Text('Salvar atividade')),
       ],
     );
   }
 }
 
+// Formulário de registro de alimentação.
 class _FormRefeicao extends StatefulWidget {
   const _FormRefeicao();
   @override
@@ -126,20 +139,23 @@ class _FormRefeicao extends StatefulWidget {
 class _FormRefeicaoState extends State<_FormRefeicao> {
   CategoriaAlimento _categoria = CategoriaAlimento.vegetais;
   final _descricao = TextEditingController();
-  int _ml = 250;
+  int _ml = 250; // quantidade de água, usada só quando a categoria é "Água"
 
+  // Cria o objeto Refeicao e salva na persistência local.
   Future<void> _salvar() async {
     final r = Refeicao(
       data: DateTime.now(),
       categoria: _categoria,
+      // Se não escreveu descrição, usa o nome da categoria.
       descricao: _descricao.text.isEmpty ? _categoria.label : _descricao.text,
+      // Só registra ml se for água; senão fica 0.
       quantidadeMl: _categoria == CategoriaAlimento.agua ? _ml : 0,
     );
     await DatabaseHelper.instance.inserirRefeicao(r);
     if (mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Refeição registrada!')));
-      _descricao.clear();
+      _descricao.clear(); // limpa o campo após salvar
     }
   }
 
@@ -147,6 +163,7 @@ class _FormRefeicaoState extends State<_FormRefeicao> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Seleção da categoria do alimento.
         DropdownButtonFormField<CategoriaAlimento>(
           value: _categoria,
           decoration: const InputDecoration(
@@ -158,12 +175,14 @@ class _FormRefeicaoState extends State<_FormRefeicao> {
           onChanged: (v) => setState(() => _categoria = v!),
         ),
         const SizedBox(height: 16),
+        // Descrição livre (opcional).
         TextFormField(
           controller: _descricao,
           decoration: const InputDecoration(
               labelText: 'Descrição (opcional)', labelStyle: TextStyle(fontSize: 20)),
           style: const TextStyle(fontSize: 20),
         ),
+        // Campo de ml aparece somente para a categoria "Água".
         if (_categoria == CategoriaAlimento.agua) ...[
           const SizedBox(height: 16),
           TextFormField(

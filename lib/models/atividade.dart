@@ -1,6 +1,10 @@
+// Tipos de atividade física que o app considera relevantes para idosos.
 enum TipoAtividade { aerobico, forca, equilibrio, flexibilidade }
+
+// Nível de esforço percebido durante a atividade.
 enum Intensidade { leve, moderada, intensa }
 
+// Devolve o nome legível (em português) de cada tipo de atividade.
 extension TipoAtividadeExt on TipoAtividade {
   String get label {
     switch (this) {
@@ -16,6 +20,7 @@ extension TipoAtividadeExt on TipoAtividade {
   }
 }
 
+// Devolve o nome legível (em português) de cada intensidade.
 extension IntensidadeExt on Intensidade {
   String get label {
     switch (this) {
@@ -29,13 +34,14 @@ extension IntensidadeExt on Intensidade {
   }
 }
 
+// Modelo que representa um registro de atividade física feito pelo usuário.
 class Atividade {
   final int? id;
   final DateTime data;
   final TipoAtividade tipo;
   final int duracaoMinutos;
   final Intensidade intensidade;
-  final int sentimento; // 1 a 5
+  final int sentimento; // 1 a 5 (como a pessoa se sentiu depois)
 
   Atividade({
     this.id,
@@ -46,6 +52,7 @@ class Atividade {
     required this.sentimento,
   });
 
+  // Converte o objeto em Map para ser salvo (JSON) na persistência local.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -57,6 +64,7 @@ class Atividade {
     };
   }
 
+  // Reconstrói o objeto a partir de um Map lido da persistência local.
   factory Atividade.fromMap(Map<String, dynamic> map) {
     return Atividade(
       id: map['id'],

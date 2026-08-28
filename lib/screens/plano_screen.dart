@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../services/planejamento_service.dart';
 
+// Tela "Plano": exibe o cronograma semanal de atividades.
 class PlanoScreen extends StatelessWidget {
   const PlanoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Gera (ou busca) o plano da semana.
     final plano = PlanejamentoService.gerarPlanoSemanal();
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -13,6 +15,7 @@ class PlanoScreen extends StatelessWidget {
         const Text('Seu plano da semana',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
+        // Um card por dia da semana, com o tipo de atividade e o detalhe.
         ...plano.map((p) => Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(

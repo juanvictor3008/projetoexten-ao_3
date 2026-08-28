@@ -1,29 +1,37 @@
 import '../models/atividade.dart';
 import '../models/alimentacao.dart';
 
+// Representa uma sugestão exibida ao usuário, com seu texto e prioridade.
 class Sugestao {
   final String texto;
-  final int prioridade; // 1 alta, 2 media, 3 baixa
+  final int prioridade; // 1 = alta, 2 = média, 3 = baixa
   Sugestao({required this.texto, required this.prioridade});
 }
 
+// Motor de regras que gera sugestões a partir dos registros do usuário.
+// As metas seguem orientações de saúde para idosos (ex.: OMS).
 class SugestaoService {
-  static const int metaMinutosSemana = 150;
-  static const int metaForcaSemana = 2;
-  static const int metaEquilibrioSemana = 2;
-  static const int metaAguaMlDia = 1500;
+  // Metas semanais usadas como referência para as dicas.
+  static const int metaMinutosSemana = 150; // atividade moderada por semana
+  static const int metaForcaSemana = 2; // sessões de força por semana
+  static const int metaEquilibrioSemana = 2; // sessões de equilíbrio por semana
+  static const int metaAguaMlDia = 1500; // hidratação diária desejada
 
+  // Analisa os registros dos últimos 7 dias e devolve a lista de sugestões.
   static List<Sugestao> gerar(List<Atividade> atividades, List<Refeicao> refeicoes) {
     final agora = DateTime.now();
     final inicioSemana = agora.subtract(const Duration(days: 7));
 
+    // Filtra apenas o que foi registrado na última semana.
     final ativSemana = atividades.where((a) => a.data.isAfter(inicioSemana)).toList();
     final refSemana = refeicoes.where((r) => r.data.isAfter(inicioSemana)).toList();
 
+    // Soma os minutos de atividade e conta os tipos relevantes.
     final minutos = ativSemana.fold<int>(0, (s, a) => s + a.duracaoMinutos);
     final forcas = ativSemana.where((a) => a.tipo == TipoAtividade.forca).length;
     final equilibrios = ativSemana.where((a) => a.tipo == TipoAtividade.equilibrio).length;
 
+    // Conta os dias em que a pessoa atingiu a meta de água e de vegetais.
     final diasComAgua = refSemana
         .where((r) => r.categoria == CategoriaAlimento.agua && r.quantidadeMl >= metaAguaMlDia)
         .map((r) => DateTime(r.data.year, r.data.month, r.data.day))
@@ -35,6 +43,7 @@ class SugestaoService {
 
     final sugestoes = <Sugestao>[];
 
+    // Se ficou abaixo da meta de minutos, sugere atividade aeróbica leve.
     if (minutos < metaMinutosSemana) {
       final faltam = metaMinutosSemana - minutos;
       sugestoes.add(Sugestao(
@@ -43,6 +52,7 @@ class SugestaoService {
         prioridade: 1,
       ));
     }
+    // Força ajuda a evitar quedas; avisa se faltou na semana.
     if (forcas < metaForcaSemana) {
       sugestoes.add(Sugestao(
         texto:
@@ -50,6 +60,7 @@ class SugestaoService {
         prioridade: 1,
       ));
     }
+    // Equilíbrio reduz risco de quedas; avisa se faltou na semana.
     if (equilibrios < metaEquilibrioSemana) {
       sugestoes.add(Sugestao(
         texto:
@@ -57,6 +68,7 @@ class SugestaoService {
         prioridade: 2,
       ));
     }
+    // Hidratação: avisa se poucos dias atingiram a meta de água.
     if (diasComAgua.length < 5) {
       sugestoes.add(Sugestao(
         texto:
@@ -64,6 +76,7 @@ class SugestaoService {
         prioridade: 2,
       ));
     }
+    // Alimentação: avisa se faltaram vegetais/frutas na semana.
     if (diasVegetais.length < 5) {
       sugestoes.add(Sugestao(
         texto:
@@ -71,12 +84,14 @@ class SugestaoService {
         prioridade: 3,
       ));
     }
+    // Se tudo certo, reforça o bom trabalho.
     if (sugestoes.isEmpty) {
       sugestoes.add(Sugestao(
         texto: 'Parabéns! Você está dentro das metas. Continue assim para manter sua saúde.',
         prioridade: 3,
       ));
     }
+    // Ordena para mostrar primeiro as sugestões mais importantes.
     sugestoes.sort((a, b) => a.prioridade.compareTo(b.prioridade));
     return sugestoes;
   }

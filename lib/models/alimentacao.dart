@@ -1,5 +1,7 @@
+// Categorias de alimentação usadas para orientar melhor a dieta do idoso.
 enum CategoriaAlimento { proteina, vegetais, carboidrato, agua, doce }
 
+// Devolve o nome legível (em português) de cada categoria de alimento.
 extension CategoriaAlimentoExt on CategoriaAlimento {
   String get label {
     switch (this) {
@@ -17,12 +19,13 @@ extension CategoriaAlimentoExt on CategoriaAlimento {
   }
 }
 
+// Modelo que representa um registro de alimentação feito pelo usuário.
 class Refeicao {
   final int? id;
   final DateTime data;
   final CategoriaAlimento categoria;
   final String descricao;
-  final int quantidadeMl; // para água; 0 para outros
+  final int quantidadeMl; // usado para água; 0 para as demais categorias
 
   Refeicao({
     this.id,
@@ -32,6 +35,7 @@ class Refeicao {
     this.quantidadeMl = 0,
   });
 
+  // Converte o objeto em Map para ser salvo (JSON) na persistência local.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -42,6 +46,7 @@ class Refeicao {
     };
   }
 
+  // Reconstrói o objeto a partir de um Map lido da persistência local.
   factory Refeicao.fromMap(Map<String, dynamic> map) {
     return Refeicao(
       id: map['id'],

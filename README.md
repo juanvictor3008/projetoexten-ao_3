@@ -24,7 +24,6 @@ o app devolve **sugestões personalizadas** baseadas em metas de saúde para ido
 
 ## 1. Obter o código
 
-
 ```bash
 git clone <URL_DO_REPOSITORIO>
 cd projetoExtens-03
@@ -100,6 +99,7 @@ build/app/outputs/flutter-apk/app-release.apk
 Transfira o APK para o celular e instale (não precisa de loja nem do Expo Go).
 
 > Na primeira vez no mobile, pode ser necessário aceitar as licenças do Android:
+>
 > ```bash
 > flutter doctor --android-licenses
 > ```

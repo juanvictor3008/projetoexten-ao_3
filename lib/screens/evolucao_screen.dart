@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../database/database_helper.dart';
 import '../models/atividade.dart';
 
+// Tela "Evolução": gráfico semanal e sequência de dias ativos.
 class EvolucaoScreen extends StatefulWidget {
   const EvolucaoScreen({super.key});
   @override
@@ -10,8 +11,8 @@ class EvolucaoScreen extends StatefulWidget {
 }
 
 class _EvolucaoScreenState extends State<EvolucaoScreen> {
-  List<BarChartGroupData> _barras = [];
-  int _sequencia = 0;
+  List<BarChartGroupData> _barras = []; // dados do gráfico de barras
+  int _sequencia = 0; // dias consecutivos com ao menos uma atividade
   bool _carregando = true;
 
   @override
@@ -20,10 +21,13 @@ class _EvolucaoScreenState extends State<EvolucaoScreen> {
     _carregar();
   }
 
+  // Lê os registros e prepara as métricas de evolução.
   Future<void> _carregar() async {
     final ativ = await DatabaseHelper.instance.listarAtividades();
-    final semanas = <int>[];
+    final semanas = <int>[]; // total de minutos por semana (últimas 4)
     final agora = DateTime.now();
+
+    // Percorre as 4 semanas anteriores, da mais antiga para a atual.
     for (int i = 3; i >= 0; i--) {
       final fim = agora.subtract(Duration(days: i * 7));
       final inicio = fim.subtract(const Duration(days: 7));
@@ -32,6 +36,8 @@ class _EvolucaoScreenState extends State<EvolucaoScreen> {
           .fold<int>(0, (s, a) => s + a.duracaoMinutos);
       semanas.add(min);
     }
+
+    // Monta as barras do gráfico a partir dos totais semanais.
     _barras = semanas.asMap().entries.map((e) => BarChartGroupData(
           x: e.key,
           barRods: [
@@ -39,6 +45,7 @@ class _EvolucaoScreenState extends State<EvolucaoScreen> {
           ],
         )).toList();
 
+    // Calcula a sequência de dias ativos (contando a partir de hoje).
     final diasComAtiv =
         ativ.map((a) => DateTime(a.data.year, a.data.month, a.data.day)).toSet();
     int seq = 0;
@@ -62,6 +69,7 @@ class _EvolucaoScreenState extends State<EvolucaoScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Card com a sequência de dias ativos.
         Card(
           color: Colors.green.shade50,
           child: Padding(
@@ -83,12 +91,14 @@ class _EvolucaoScreenState extends State<EvolucaoScreen> {
         const Text('Minutos de atividade por semana',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
+        // Gráfico de barras com os últimos 4 períodos semanais.
         SizedBox(
           height: 300,
           child: BarChart(
             BarChartData(
               barGroups: _barras,
               titlesData: FlTitlesData(
+                // Rótulos embaixo: identificam cada semana.
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -101,6 +111,7 @@ class _EvolucaoScreenState extends State<EvolucaoScreen> {
                     },
                   ),
                 ),
+                // Rótulos à esquerda: valores em minutos.
                 leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                         showTitles: true, reservedSize: 40)),

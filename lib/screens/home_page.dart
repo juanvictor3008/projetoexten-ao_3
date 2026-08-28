@@ -4,6 +4,7 @@ import 'registro_screen.dart';
 import 'plano_screen.dart';
 import 'evolucao_screen.dart';
 
+// Tela principal: mantém a navegação entre as 4 seções do app.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -11,7 +12,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _indice = 0;
+  int _indice = 0; // aba atualmente selecionada
+
+  // As quatro telas acessíveis pela barra inferior.
   final telas = const [
     InicioScreen(),
     RegistroScreen(),
@@ -24,11 +27,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // O título muda conforme a aba selecionada.
         title: Text(rotulos[_indice], style: const TextStyle(fontSize: 24)),
       ),
+      // Exibe a tela correspondente à aba atual.
       body: telas[_indice],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indice,
+        // Ao tocar em uma aba, atualiza o estado e troca a tela.
         onTap: (i) => setState(() => _indice = i),
         type: BottomNavigationBarType.fixed,
         items: const [
