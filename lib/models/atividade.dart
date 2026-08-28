@@ -76,3 +76,21 @@ class Atividade {
     );
   }
 }
+
+// Interpreta o campo "sentimento" (1 a 5) em texto claro para o idoso.
+String labelSentimento(int valor) {
+  switch (valor) {
+    case 1:
+      return 'Muito mal';
+    case 2:
+      return 'Mal';
+    case 3:
+      return 'Mais ou menos';
+    case 4:
+      return 'Bem';
+    case 5:
+      return 'Muito bem';
+    default:
+      return '?';
+  }
+}

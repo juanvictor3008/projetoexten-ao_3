@@ -61,7 +61,8 @@ class _HistoricoScreenState extends State<HistoricoScreen> {
           leading: const Icon(Icons.directions_run, size: 32, color: Colors.green),
           title: Text('${a.tipo.label} • ${a.duracaoMinutos} min',
               style: const TextStyle(fontSize: 20)),
-          subtitle: Text('${a.intensidade.label} • sentiu ${a.sentimento}/5 • ${_fmt(a.data)}',
+          subtitle: Text(
+              '${a.intensidade.label} • sentiu ${a.sentimento}/5 (${labelSentimento(a.sentimento)}) • ${_fmt(a.data)}',
               style: const TextStyle(fontSize: 16)),
           trailing: IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),

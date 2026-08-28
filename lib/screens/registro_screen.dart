@@ -110,9 +110,14 @@ class _FormAtividadeState extends State<_FormAtividade> {
           onChanged: (v) => _duracao = int.tryParse(v) ?? 20,
         ),
         const SizedBox(height: 16),
-        // Sentimento pós-atividade (1 a 5) via slider.
-        Text('Como você se sentiu? $_sentimento/5',
+        // Sentimento pós-atividade (1 a 5): deixa claro o que cada número significa.
+        Text('Como você se sentiu depois da atividade?',
             style: const TextStyle(fontSize: 20)),
+        const SizedBox(height: 4),
+        // Mostra o valor atual já traduzido para texto.
+        Text('$_sentimento/5 — ${labelSentimento(_sentimento)}',
+            style: const TextStyle(
+                fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green)),
         Slider(
           value: _sentimento.toDouble(),
           min: 1,
@@ -120,6 +125,18 @@ class _FormAtividadeState extends State<_FormAtividade> {
           divisions: 4,
           label: _sentimento.toString(),
           onChanged: (v) => setState(() => _sentimento = v.toInt()),
+        ),
+        // Legenda completa para o idoso não se perder na escala.
+        const Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            Text('1 = Muito mal', style: TextStyle(fontSize: 15)),
+            Text('2 = Mal', style: TextStyle(fontSize: 15)),
+            Text('3 = Mais ou menos', style: TextStyle(fontSize: 15)),
+            Text('4 = Bem', style: TextStyle(fontSize: 15)),
+            Text('5 = Muito bem', style: TextStyle(fontSize: 15)),
+          ],
         ),
         const SizedBox(height: 20),
         // Botão que dispara o salvamento.
