@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../database/database_helper.dart';
-import '../models/atividade.dart';
 
 // Tela "Evolução": gráfico semanal e sequência de dias ativos.
 class EvolucaoScreen extends StatefulWidget {

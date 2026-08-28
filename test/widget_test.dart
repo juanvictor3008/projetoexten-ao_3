@@ -1,30 +1,43 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:movimenta/services/sugestao_service.dart';
+import 'package:movimenta/services/planejamento_service.dart';
+import 'package:movimenta/models/atividade.dart';
+import 'package:movimenta/models/alimentacao.dart';
 
-import 'package:movimenta/main.dart';
+// Monta uma atividade de exemplo ocorrida `diaAtras` dias atrás.
+Atividade ativ(TipoAtividade t, int min, int sent, int diaAtras) => Atividade(
+      id: 1,
+      data: DateTime.now().subtract(Duration(days: diaAtras)),
+      tipo: t,
+      duracaoMinutos: min,
+      intensidade: Intensidade.leve,
+      sentimento: sent,
+    );
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('SugestaoService gera alerta quando sentimento esta baixo', () {
+    // Maria sentiu-se mal (2/5) nas duas atividades da semana.
+    final a = [
+      ativ(TipoAtividade.aerobico, 20, 2, 1),
+      ativ(TipoAtividade.aerobico, 20, 2, 2),
+    ];
+    final s = SugestaoService.gerar(a, []);
+    expect(s.any((x) => x.prioridade == 1 && x.texto.contains('desconfortável')), isTrue);
+    print('--- SUGESTOES (sentimento baixo) ---');
+    for (final x in s) print('[${x.prioridade}] ${x.texto}');
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('PlanejamentoService personaliza os dias conforme o historico', () {
+    // Semana com pouca atividade e sem força/equilíbrio registrados.
+    final a = [
+      ativ(TipoAtividade.aerobico, 20, 4, 1),
+      ativ(TipoAtividade.aerobico, 20, 4, 2),
+    ];
+    final plano = PlanejamentoService.gerarPlanoSemanal(a, []);
+    print('--- PLANO PERSONALIZADO ---');
+    for (final p in plano) print('${p.dia}: ${p.atividade} | ${p.detalhe}');
+    // Deve incluir Força e Equilíbrio por causa do débito da semana.
+    expect(plano.any((p) => p.atividade == 'Força'), isTrue);
+    expect(plano.any((p) => p.atividade == 'Equilíbrio'), isTrue);
   });
 }
