@@ -24,7 +24,6 @@ o app devolve **sugestões personalizadas** baseadas em metas de saúde para ido
 
 ## 1. Obter o código
 
-Se o projeto estiver em um repositório Git:
 
 ```bash
 git clone <URL_DO_REPOSITORIO>
