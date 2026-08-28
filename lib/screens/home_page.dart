@@ -3,8 +3,10 @@ import 'inicio_screen.dart';
 import 'registro_screen.dart';
 import 'plano_screen.dart';
 import 'evolucao_screen.dart';
+import 'historico_screen.dart';
+import 'cuidador_screen.dart';
 
-// Tela principal: mantém a navegação entre as 4 seções do app.
+// Tela principal: mantém a navegação entre as seções do app.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -14,14 +16,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _indice = 0; // aba atualmente selecionada
 
-  // As quatro telas acessíveis pela barra inferior.
+  // As telas acessíveis pela barra inferior (agora com Histórico).
   final telas = const [
     InicioScreen(),
     RegistroScreen(),
     PlanoScreen(),
     EvolucaoScreen(),
+    HistoricoScreen(),
   ];
-  final rotulos = const ['Início', 'Registrar', 'Plano', 'Evolução'];
+  final rotulos = const ['Início', 'Registrar', 'Plano', 'Evolução', 'Histórico'];
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +32,17 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         // O título muda conforme a aba selecionada.
         title: Text(rotulos[_indice], style: const TextStyle(fontSize: 24)),
+        // Atalho para o Modo Cuidador.
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            tooltip: 'Modo Cuidador',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CuidadorScreen()),
+            ),
+          ),
+        ],
       ),
       // Exibe a tela correspondente à aba atual.
       body: telas[_indice],
@@ -42,6 +56,7 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.add_circle), label: 'Registrar'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Plano'),
           BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Evolução'),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Histórico'),
         ],
       ),
     );

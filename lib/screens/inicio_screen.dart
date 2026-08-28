@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
 import '../services/sugestao_service.dart';
@@ -12,13 +13,15 @@ class InicioScreen extends StatefulWidget {
 class _InicioScreenState extends State<InicioScreen> {
   List<Sugestao> _sugestoes = [];
   int _minutosSemana = 0;
-  bool _carregando = true; // controla a tela de carregamento
+  bool _carregando = true;
+  late final StreamSubscription _sub;
 
   @override
   void initState() {
     super.initState();
-    // Ao abrir a tela, já busca os dados e gera as sugestões.
     _carregar();
+    // Recarrega sozinho quando algo é registrado ou excluído.
+    _sub = DatabaseHelper.instance.onChange.listen((_) => _carregar());
   }
 
   // Lê os registros salvos, calcula o total da semana e monta as sugestões.
@@ -36,11 +39,18 @@ class _InicioScreenState extends State<InicioScreen> {
         .where((a) => a.data.isAfter(inicio))
         .fold<int>(0, (s, a) => s + a.duracaoMinutos);
 
+    if (!mounted) return;
     setState(() {
       _sugestoes = SugestaoService.gerar(ativ, ref);
       _minutosSemana = minutos;
       _carregando = false; // libera a exibição da tela
     });
+  }
+
+  @override
+  void dispose() {
+    _sub.cancel(); // evita vazamento de memória ao sair da tela
+    super.dispose();
   }
 
   @override
@@ -50,7 +60,7 @@ class _InicioScreenState extends State<InicioScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     return RefreshIndicator(
-      // Puxar para atualizar recarrega os dados.
+      // Puxar para atualizar também recarrega os dados.
       onRefresh: _carregar,
       child: ListView(
         padding: const EdgeInsets.all(16),

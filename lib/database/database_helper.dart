@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/atividade.dart';
@@ -10,7 +11,12 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static const _ativKey = 'atividades'; // chave da lista de atividades
   static const _refKey = 'alimentacao'; // chave da lista de refeições
+  static const _perfilKey = 'perfil_nome'; // nome do idoso (modo cuidador)
   SharedPreferences? _prefs;
+
+  // Avisa as telas quando algo muda (usado para auto-atualizar a UI).
+  final StreamController<void> _onChange = StreamController<void>.broadcast();
+  Stream<void> get onChange => _onChange.stream;
 
   DatabaseHelper._init();
 
@@ -24,7 +30,7 @@ class DatabaseHelper {
   Future<int> inserirAtividade(Atividade a) async {
     final p = await prefs;
     final lista = await listarAtividades();
-    final id = DateTime.now().millisecondsSinceEpoch; // id simples baseado no relógio
+    final id = DateTime.now().millisecondsSinceEpoch;
     final nova = Atividade(
       id: id,
       data: a.data,
@@ -35,6 +41,7 @@ class DatabaseHelper {
     );
     lista.add(nova);
     await p.setString(_ativKey, jsonEncode(lista.map((e) => e.toMap()).toList()));
+    _onChange.add(null); // notifica as telas
     return id;
   }
 
@@ -63,6 +70,7 @@ class DatabaseHelper {
     );
     lista.add(nova);
     await p.setString(_refKey, jsonEncode(lista.map((e) => e.toMap()).toList()));
+    _onChange.add(null);
     return id;
   }
 
@@ -75,6 +83,35 @@ class DatabaseHelper {
     final refs = list.map((m) => Refeicao.fromMap(Map<String, dynamic>.from(m))).toList();
     refs.sort((a, b) => b.data.compareTo(a.data));
     return refs;
+  }
+
+  // Remove uma atividade pelo id e avisa as telas.
+  Future<void> excluirAtividade(int id) async {
+    final p = await prefs;
+    final lista = await listarAtividades();
+    lista.removeWhere((a) => a.id == id);
+    await p.setString(_ativKey, jsonEncode(lista.map((e) => e.toMap()).toList()));
+    _onChange.add(null);
+  }
+
+  // Remove uma refeição pelo id e avisa as telas.
+  Future<void> excluirRefeicao(int id) async {
+    final p = await prefs;
+    final lista = await listarRefeicoes();
+    lista.removeWhere((r) => r.id == id);
+    await p.setString(_refKey, jsonEncode(lista.map((e) => e.toMap()).toList()));
+    _onChange.add(null);
+  }
+
+  // Perfil: nome do idoso, usado no relatório do cuidador.
+  Future<void> salvarNome(String nome) async {
+    final p = await prefs;
+    await p.setString(_perfilKey, nome);
+  }
+
+  Future<String> lerNome() async {
+    final p = await prefs;
+    return p.getString(_perfilKey) ?? '';
   }
 
   // Libera a instância em memória (não apaga os dados salvos).

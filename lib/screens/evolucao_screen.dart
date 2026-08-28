@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../database/database_helper.dart';
@@ -14,11 +15,14 @@ class _EvolucaoScreenState extends State<EvolucaoScreen> {
   List<BarChartGroupData> _barras = []; // dados do gráfico de barras
   int _sequencia = 0; // dias consecutivos com ao menos uma atividade
   bool _carregando = true;
+  late final StreamSubscription _sub;
 
   @override
   void initState() {
     super.initState();
     _carregar();
+    // Recarrega sozinho quando algo é registrado ou excluído.
+    _sub = DatabaseHelper.instance.onChange.listen((_) => _carregar());
   }
 
   // Lê os registros e prepara as métricas de evolução.
@@ -55,10 +59,17 @@ class _EvolucaoScreenState extends State<EvolucaoScreen> {
       d = d.subtract(const Duration(days: 1));
     }
 
+    if (!mounted) return;
     setState(() {
       _sequencia = seq;
       _carregando = false;
     });
+  }
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
   }
 
   @override

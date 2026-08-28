@@ -131,13 +131,20 @@ lib/
     └── evolucao_screen.dart      # gráfico + sequência de dias
 ```
 
-## Próximos passos (melhorias planejadas)
+## Status das melhorias
 
-- Plano semanal **personalizado** a partir do histório do usuário.
-- Auto-atualização das telas Início/Evolução ao registrar algo.
+As melhorias planejadas foram implementadas:
+- Plano semanal **personalizado** conforme o histórico do usuário.
+- **Auto-atualização** das telas Início, Plano e Evolução ao registrar/excluir.
 - Tela de **histórico** com opção de excluir registros.
-- **Modo cuidador** para acompanhamento remoto.
+- **Modo cuidador** com relatório compartilhável (WhatsApp/e-mail).
 - Uso do campo "como se sentiu" nas sugestões.
+
+## Ideias para o futuro
+
+- Lembretes/notificações agendadas.
+- Sincronização em nuvem (Firebase) para o cuidador acompanhar à distância.
+- Gráfico de evolução também para alimentação.
 
 ## Comandos úteis
 

@@ -84,6 +84,17 @@ class SugestaoService {
         prioridade: 3,
       ));
     }
+    // Usa o campo "sentimento" para alertar quando a pessoa se sente mal.
+    if (ativSemana.isNotEmpty) {
+      final media = ativSemana.fold<int>(0, (s, a) => s + a.sentimento) / ativSemana.length;
+      if (media < 3) {
+        sugestoes.add(Sugestao(
+          texto:
+              'Nesta semana você tem se sentido desconfortável (média ${media.toStringAsFixed(1)}/5). Prefira atividades leves e, se persistir, converse com um profissional de saúde.',
+          prioridade: 1,
+        ));
+      }
+    }
     // Se tudo certo, reforça o bom trabalho.
     if (sugestoes.isEmpty) {
       sugestoes.add(Sugestao(
